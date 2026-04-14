@@ -401,14 +401,14 @@ export default function GomokuBoard() {
         }
 
         .gomoku-label {
-          top: 28px; left: 50%; transform: translateX(-50%);
+          top: 55px; left: 50%; transform: translateX(-50%);
           font-size: 11px;
           color: rgba(232,184,75,0.55);
         }
 
         /* ── SCOREBOARD CSS ── */
         .scoreboard {
-          top: 60px; left: 50%; transform: translateX(-50%);
+          top: 85px; left: 50%; transform: translateX(-50%);
           display: flex; align-items: center; gap: 20px;
           background: rgba(13,15,20,0.78);
           border: 1px solid rgba(255,255,255,0.06);

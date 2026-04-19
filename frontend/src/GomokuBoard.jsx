@@ -28,6 +28,19 @@ const THEME = {
   ghostStroke:   "rgba(232,184,75,0.28)",
 };
 
+// ── Sounds ─────────────────────────────────────────────────────────────────
+const SOUNDS = {
+  click: "/sounds/click.mp3",
+  place: "/sounds/place.mp3",
+  win:   "/sounds/win.mp3",
+  lose:  "/sounds/lose.mp3",
+};
+
+const playSound = (type) => {
+  const audio = new Audio(SOUNDS[type]);
+  audio.play().catch(() => {}); // Catch browser-blocked autoplay
+};
+
 // ── Pure drawing helpers ───────────────────────────────────────────────────
 const snap = (v) => Math.round(v);
 
@@ -194,6 +207,8 @@ export default function GomokuBoard() {
   const [appState, setAppState] = useState("MENU");
   const appStateRef = useRef("MENU"); 
 
+  const [showRules, setShowRules] = useState(false);
+
   const [gameMode, setGameMode] = useState("ai");
   const gameModeRef = useRef("ai");
   
@@ -203,6 +218,7 @@ export default function GomokuBoard() {
   const [gameOver,  setGameOver]  = useState(false);
 
   const changeState = useCallback((newState) => {
+    playSound("click");
     appStateRef.current = newState;
     setAppState(newState);
   }, []);
@@ -269,7 +285,13 @@ export default function GomokuBoard() {
         try { data = JSON.parse(evt.data); } catch { return; }
         if (data.error) { setMessage(`⚠ ${data.error}`); return; }
 
+        const prevCount = Object.keys(boardRef.current).length;
         boardRef.current = data.board ?? {};
+        const newCount = Object.keys(boardRef.current).length;
+
+        if (newCount > prevCount) {
+          playSound("place");
+        }
         
         if (gameModeRef.current === "pvp") {
           myTurnRef.current = !data.game_over;
@@ -279,8 +301,16 @@ export default function GomokuBoard() {
 
         // --- SCORE TRACKING LOGIC ---
         if (data.game_over && !matchScoredRef.current) {
-          if (data.winner === "X") setScores(s => ({ ...s, X: s.X + 1 }));
-          if (data.winner === "O") setScores(s => ({ ...s, O: s.O + 1 }));
+          if (data.winner === "X") {
+            setScores(s => ({ ...s, X: s.X + 1 }));
+            playSound("win");
+          } else if (data.winner === "O") {
+            setScores(s => ({ ...s, O: s.O + 1 }));
+            // In AI mode, O winning is a loss for the player.
+            // In PvP mode, O winning is still a "win" for player O.
+            if (gameModeRef.current === "ai") playSound("lose");
+            else playSound("win");
+          }
           matchScoredRef.current = true; // Lock it so it doesn't double count!
         }
 
@@ -296,6 +326,7 @@ export default function GomokuBoard() {
 
   // ── Game Actions ──────────────────────────────────────────────────────
   const startGame = useCallback((mode) => {
+    playSound("click");
     if (gameModeRef.current !== mode) {
       setScores({ X: 0, O: 0 }); // Reset score if switching between AI and PvP
     }
@@ -309,6 +340,7 @@ export default function GomokuBoard() {
   }, [changeState]);
 
   const resetGame = useCallback(() => {
+    playSound("click");
     matchScoredRef.current = false; // Unlock score for new round
     changeState("PLAYING");
     setGameOver(false);
@@ -505,6 +537,31 @@ export default function GomokuBoard() {
         .menu-btn.accent:hover {
           background: #f0c868; box-shadow: 0 0 15px rgba(232,184,75,0.4);
         }
+
+        .rules-list {
+          text-align: left;
+          margin: 20px 0;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+        .rules-item {
+          display: flex;
+          gap: 12px;
+          font-family: 'DM Mono', 'Fira Mono', monospace;
+          font-size: 11px;
+          line-height: 1.5;
+          color: rgba(255,255,255,0.7);
+        }
+        .rules-bullet {
+          color: #e8b84b;
+          font-weight: bold;
+        }
+        @media (max-width: 600px) {
+          .menu-box { padding: 30px 20px; width: 90%; }
+          .menu-title { font-size: 14px; }
+          .rules-item { font-size: 10px; }
+        }
       `}</style>
 
       <div className="gomoku-wrapper">
@@ -551,12 +608,40 @@ export default function GomokuBoard() {
 
         <div className="hud gomoku-badge">drag to pan · click to play</div>
 
-        {appState === "MENU" && (
+        {appState === "MENU" && !showRules && (
           <div className="overlay-container">
             <div className="menu-box">
               <div className="menu-title">Select Mode</div>
               <button className="menu-btn accent" onClick={() => startGame("ai")}>Play vs AI</button>
               <button className="menu-btn" onClick={() => startGame("pvp")}>Local PvP</button>
+              <button className="menu-btn" onClick={() => { playSound("click"); setShowRules(true); }}>How to Play</button>
+            </div>
+          </div>
+        )}
+
+        {showRules && (
+          <div className="overlay-container">
+            <div className="menu-box">
+              <div className="menu-title">How to Play</div>
+              <div className="rules-list">
+                <div className="rules-item">
+                  <span className="rules-bullet">01</span>
+                  <span>Connect exactly five pieces in a row—horizontally, vertically, or diagonally.</span>
+                </div>
+                <div className="rules-item">
+                  <span className="rules-bullet">02</span>
+                  <span>Players take turns placing one piece at a time in any empty square.</span>
+                </div>
+                <div className="rules-item">
+                  <span className="rules-bullet">03</span>
+                  <span>The board is infinite. Click and drag to pan the camera across the grid.</span>
+                </div>
+                <div className="rules-item">
+                  <span className="rules-bullet">04</span>
+                  <span>The game ends immediately when a player completes a chain of five.</span>
+                </div>
+              </div>
+              <button className="menu-btn accent" onClick={() => { playSound("click"); setShowRules(false); }}>Got it</button>
             </div>
           </div>
         )}

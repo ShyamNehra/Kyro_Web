@@ -30,14 +30,25 @@ const THEME = {
 
 // ── Sounds ─────────────────────────────────────────────────────────────────
 const SOUNDS = {
-  click: "/sounds/click.mp3",
-  place: "/sounds/place.mp3",
-  win:   "/sounds/win.mp3",
-  lose:  "/sounds/lose.mp3",
+  click: "/sounds/click.wav",
+  place: "/sounds/place.wav",
+  win:   "/sounds/win.wav",
+  lose:  "/sounds/lose.wav",
 };
 
+const AUDIO_INSTANCES = {};
+if (typeof window !== "undefined") {
+  for (const [key, path] of Object.entries(SOUNDS)) {
+    const audio = new Audio(path);
+    audio.preload = "auto";
+    AUDIO_INSTANCES[key] = audio;
+  }
+}
+
 const playSound = (type) => {
-  const audio = new Audio(SOUNDS[type]);
+  const instance = AUDIO_INSTANCES[type];
+  if (!instance) return;
+  const audio = instance.cloneNode(true);
   audio.play().catch(() => {}); // Catch browser-blocked autoplay
 };
 
@@ -285,18 +296,20 @@ export default function GomokuBoard() {
         try { data = JSON.parse(evt.data); } catch { return; }
         if (data.error) { setMessage(`⚠ ${data.error}`); return; }
 
-        const prevCount = Object.keys(boardRef.current).length;
-        boardRef.current = data.board ?? {};
-        const newCount = Object.keys(boardRef.current).length;
+        if (data.board !== undefined) {
+          const prevCount = Object.keys(boardRef.current).length;
+          boardRef.current = data.board;
+          const newCount = Object.keys(boardRef.current).length;
 
-        if (newCount > prevCount) {
-          playSound("place");
-        }
-        
-        if (gameModeRef.current === "pvp") {
-          myTurnRef.current = !data.game_over;
-        } else {
-          myTurnRef.current = !data.game_over && data.current_turn === "X";
+          if (newCount > prevCount) {
+            playSound("place");
+          }
+
+          if (gameModeRef.current === "pvp") {
+            myTurnRef.current = !data.game_over;
+          } else {
+            myTurnRef.current = !data.game_over && data.current_turn === "X";
+          }
         }
 
         // --- SCORE TRACKING LOGIC ---
@@ -326,7 +339,6 @@ export default function GomokuBoard() {
 
   // ── Game Actions ──────────────────────────────────────────────────────
   const startGame = useCallback((mode) => {
-    playSound("click");
     if (gameModeRef.current !== mode) {
       setScores({ X: 0, O: 0 }); // Reset score if switching between AI and PvP
     }
@@ -340,7 +352,6 @@ export default function GomokuBoard() {
   }, [changeState]);
 
   const resetGame = useCallback(() => {
-    playSound("click");
     matchScoredRef.current = false; // Unlock score for new round
     changeState("PLAYING");
     setGameOver(false);
@@ -537,7 +548,7 @@ export default function GomokuBoard() {
         .menu-btn.accent:hover {
           background: #f0c868; box-shadow: 0 0 15px rgba(232,184,75,0.4);
         }
-
+win
         .rules-list {
           text-align: left;
           margin: 20px 0;
@@ -577,15 +588,15 @@ export default function GomokuBoard() {
         <div className="hud gomoku-label">gomoku · infinite grid</div>
 
         {/* ── THE NEW SCOREBOARD ── */}
-        {appState === "PLAYING" && gameMode === "pvp" && (
+        {appState === "PLAYING" && (
           <div className="hud scoreboard">
             <div className="score-box">
-              <span className="score-label">PLAYER X</span>
+              <span className="score-label">{gameMode === "ai" ? "PLAYER" : "PLAYER X"}</span>
               <span className="score-val score-x">{scores.X}</span>
             </div>
             <span className="score-div">-</span>
             <div className="score-box">
-              <span className="score-label">PLAYER O</span>
+              <span className="score-label">{gameMode === "ai" ? "AI" : "PLAYER O"}</span>
               <span className="score-val score-o">{scores.O}</span>
             </div>
           </div>

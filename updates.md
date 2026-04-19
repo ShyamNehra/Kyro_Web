@@ -18,5 +18,12 @@ This file tracks the latest updates and improvements made to the Infinite Gomoku
   4. Victory: Instant win upon connecting 5.
 - **Improved**: Mobile responsiveness for all menu overlays and modals.
 
+## [2026-04-19 10:45] - Gameplay Stability & Audio Polishing
+- **Fixed**: Resolved a bug where AI status messages ("AI is thinking...") would temporarily wipe the board from the screen by wrapping board updates in a conditional WebSocket check.
+- **Improved**: Eliminated audio playback latency by implementing an audio preloading system with `cloneNode` playback for zero-delay sound effects.
+- **Improved**: Fixed redundant "double-click" sounds on menu buttons by consolidating click-sound logic.
+- **Improved**: Enhanced the Scoreboard to display in both "vs AI" and "Local PvP" modes with dynamic labels (**PLAYER** vs **AI** or **PLAYER X** vs **PLAYER O**).
+- **Updated**: Standardized all audio assets to `.wav` format for consistent quality and performance.
+
 ---
-*Last updated: 2026-04-18 14:35*
+*Last updated: 2026-04-19 10:50*

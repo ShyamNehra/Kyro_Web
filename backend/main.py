@@ -33,6 +33,10 @@ def _build_state(model: GameModel, message: str = "") -> dict:
         "message": message,
     }
 
+@app.get("/")
+async def health_check():
+    return {"status": "I am awake!"}
+
 @app.websocket("/ws/game")
 async def game_endpoint(websocket: WebSocket):
     await websocket.accept()

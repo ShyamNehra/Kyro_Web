@@ -2,7 +2,8 @@ import { useEffect, useRef, useCallback, useState } from "react";
 
 // ── Constants ──────────────────────────────────────────────────────────────
 const CELL_SIZE      = 48;
-const WS_URL         = "wss://gomoku-backend-v3wc.onrender.com/ws/game";
+// const WS_URL         = "wss://gomoku-backend-v3wc.onrender.com/ws/game";
+const WS_URL         = "ws://localhost:8000/ws/game";
 const PIECE_RADIUS   = CELL_SIZE * 0.38;
 const DRAG_THRESHOLD = 10;
 
@@ -113,7 +114,7 @@ function drawPiece(ctx, cx, cy, player) {
 }
 
 // ── Master render function ─────────────────────────────────────────────────
-function render(canvas, camera, board, hover, myTurn, appState) {
+function render(canvas, camera, board, hover, myTurn, appState, winningLine) {
   const ctx = canvas.getContext("2d");
   const dpr = window.devicePixelRatio || 1;
   const W   = canvas.width  / dpr;
@@ -177,6 +178,32 @@ function render(canvas, camera, board, hover, myTurn, appState) {
     drawPiece(ctx, cx, cy, player);
   }
 
+  // ── DRAW WINNING LINE ──
+  if (winningLine && winningLine.length >= 5) {
+    ctx.beginPath();
+    winningLine.forEach(([gx, gy], i) => {
+      const cx = ox + gx * CELL_SIZE + CELL_SIZE / 2;
+      const cy = oy + gy * CELL_SIZE + CELL_SIZE / 2;
+      if (i === 0) ctx.moveTo(cx, cy);
+      else ctx.lineTo(cx, cy);
+    });
+    
+    // Golden Glow
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = "#e8b84b";
+    ctx.strokeStyle = "#e8b84b";
+    ctx.lineWidth = 6;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.stroke();
+    
+    // Core line
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = "#fff";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  }
+
   if (appState === "PLAYING" && myTurn && hover && !board[`${hover.gx},${hover.gy}`]) {
     const cx = ox + hover.gx * CELL_SIZE + CELL_SIZE / 2;
     const cy = oy + hover.gy * CELL_SIZE + CELL_SIZE / 2;
@@ -208,6 +235,7 @@ export default function GomokuBoard() {
   const rafRef     = useRef(null);
   const wsRef      = useRef(null);
   const boardRef   = useRef({});
+  const winningLineRef = useRef([]);
   const hoverRef   = useRef(null);
   const myTurnRef  = useRef(true);
 
@@ -237,7 +265,7 @@ export default function GomokuBoard() {
   // ── Scheduling ────────────────────────────────────────────────────────
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
-    if (canvas) render(canvas, cameraRef.current, boardRef.current, hoverRef.current, myTurnRef.current, appStateRef.current);
+    if (canvas) render(canvas, cameraRef.current, boardRef.current, hoverRef.current, myTurnRef.current, appStateRef.current, winningLineRef.current);
   }, []);
 
   const scheduleDraw = useCallback(() => {
@@ -281,6 +309,8 @@ export default function GomokuBoard() {
       ws.onopen = () => {
         setConnected(true);
         setStatus("Connected");
+        // Ensure mode is synced as soon as connection is established
+        ws.send(JSON.stringify({ action: "sync_mode", mode: gameModeRef.current }));
       };
 
       ws.onclose = () => {
@@ -312,6 +342,10 @@ export default function GomokuBoard() {
           }
         }
 
+        if (data.winning_line !== undefined) {
+          winningLineRef.current = data.winning_line;
+        }
+
         // --- SCORE TRACKING LOGIC ---
         if (data.game_over && !matchScoredRef.current) {
           if (data.winner === "X") {
@@ -327,7 +361,19 @@ export default function GomokuBoard() {
           matchScoredRef.current = true; // Lock it so it doesn't double count!
         }
 
-        setGameOver(!!data.game_over);
+        if (data.game_over) {
+          // Delay the popup by 1 second
+          setTimeout(() => {
+            setGameOver(true);
+          }, 1000);
+        } else {
+          setGameOver(false);
+          // If board is empty (reset), clear winning line
+          if (Object.keys(boardRef.current).length === 0) {
+            winningLineRef.current = [];
+          }
+        }
+
         setMessage(data.message ?? "");
         scheduleDraw();
       };
@@ -348,14 +394,23 @@ export default function GomokuBoard() {
     setGameMode(mode);
     changeState("PLAYING");
     setGameOver(false);
-    wsRef.current?.send(JSON.stringify({ action: "start", mode }));
+    winningLineRef.current = [];
+
+    // Only send if socket is open; if not, ws.onopen will sync the mode later
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify({ action: "reset", mode }));
+    }
   }, [changeState]);
 
   const resetGame = useCallback(() => {
     matchScoredRef.current = false; // Unlock score for new round
     changeState("PLAYING");
     setGameOver(false);
-    wsRef.current?.send(JSON.stringify({ action: "reset" }));
+    winningLineRef.current = [];
+
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify({ action: "reset", mode: gameModeRef.current }));
+    }
   }, [changeState]);
 
   const sendMove = useCallback((gx, gy) => {

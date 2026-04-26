@@ -30,6 +30,7 @@ def _build_state(model: GameModel, message: str = "") -> dict:
         "current_turn": model.current,
         "game_over": model.game_over,
         "winner": model.winner,
+        "winning_line": model.winning_line,
         "message": message,
     }
 
@@ -46,8 +47,7 @@ async def game_endpoint(websocket: WebSocket):
     HUMAN_PLAYER = "X"
     current_mode = "ai"  # Default mode
 
-    await websocket.send_text(json.dumps(_build_state(model, "Connected. Choose a mode.")))
-
+    # Initial state is only sent upon request (sync_mode or reset)
     try:
         while True:
             raw = await websocket.receive_text()
@@ -58,16 +58,16 @@ async def game_endpoint(websocket: WebSocket):
 
             action = data.get("action")
 
-            # ── Start Game ─────────────────────────────────────────────────
-            if action == "start":
-                current_mode = data.get("mode", "ai")
-                model.reset()
-                msg = "Game started. Your turn (X)." if current_mode == "ai" else "PvP Started. X goes first."
+            # ── Sync Mode ──────────────────────────────────────────────────
+            if action == "sync_mode":
+                current_mode = data.get("mode", current_mode)
+                msg = f"Mode synced to {current_mode}."
                 await websocket.send_text(json.dumps(_build_state(model, msg)))
                 continue
 
             # ── Reset (Restart) ────────────────────────────────────────────
             if action == "reset":
+                current_mode = data.get("mode", current_mode)
                 model.reset()
                 msg = "Board reset. Your turn (X)." if current_mode == "ai" else "Board reset. X goes first."
                 await websocket.send_text(json.dumps(_build_state(model, msg)))

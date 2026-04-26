@@ -1,5 +1,5 @@
-import GomokuBoard from "./GomokuBoard";
+import KyroBoard from "./KyroBoard";
 
 export default function App() { 
-  return <GomokuBoard />; 
+  return <KyroBoard />; 
 }

@@ -1,5 +1,5 @@
 """
-main.py — FastAPI WebSocket backend for Infinite Gomoku
+main.py — FastAPI WebSocket backend for Infinite Kyro
 Manages a game session per WebSocket connection.
 """
 
@@ -12,7 +12,7 @@ import json
 from model import GameModel
 from ai import get_best_move
 
-app = FastAPI(title="Gomoku WebSocket Server")
+app = FastAPI(title="Kyro WebSocket Server")
 
 app.add_middleware(
     CORSMiddleware,

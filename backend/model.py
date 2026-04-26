@@ -1,5 +1,5 @@
 """
-model.py — Gomoku (Infinite Grid Tic-Tac-Toe) Model
+model.py — Kyro (Infinite Grid Tic-Tac-Toe) Model
 MVC Architecture | Pure logic, no pygame dependency.
 
 Board state is stored in a dictionary:
@@ -22,7 +22,7 @@ DIRECTIONS = [
 
 class GameModel:
     """
-    Encapsulates all game state and logic for Gomoku on an infinite grid.
+    Encapsulates all game state and logic for Kyro on an infinite grid.
 
     Attributes:
         board   (dict)  : Maps (x, y) tuples to 'X' or 'O'.

@@ -1,13 +1,13 @@
-#  Infinite Gomoku
+#  Kyro
 
-**[Play the Live Demo Here](https://infinitegomoku.vercel.app/)**
+**[Play the Live Demo Here](https://kyro-go.vercel.app/)**
 
-**Infinite Gomoku** is a sleek, modern reimagining of the classic strategy board game, completely removing the boundaries of the traditional 15x15 grid. Built with a buttery-smooth HTML5 Canvas and a real-time WebSocket backend, players can seamlessly click and drag to pan across an endless playing field to outmaneuver their opponents. 
+**Kyro** is a sleek, modern reimagining of the classic strategy board game, completely removing the boundaries of the traditional 15x15 grid. Built with a buttery-smooth HTML5 Canvas and a real-time WebSocket backend, players can seamlessly click and drag to pan across an endless playing field to outmaneuver their opponents. 
 
 Featuring a responsive, glassmorphism UI optimized for both desktop and mobile, you can challenge a custom-built heuristic AI that simulates human-like blunders and thinking delays, or jump into Local PvP for a classic hot-seat battle. In a game with no walls, you only run out of space when you get outsmarted.
 
 ## 📜 The Rules of the Game
-The rules of Gomoku are incredibly simple to learn, but notoriously difficult to master.
+The rules of Kyro are incredibly simple to learn, but notoriously difficult to master.
 
 * **The Objective:** Be the first player to form an unbroken chain of exactly **five** pieces horizontally, vertically, or diagonally.
 * **The Gameplay:** Player X (Light) and Player O (Gold) take turns placing one piece at a time inside any empty square on the board.
@@ -30,8 +30,8 @@ The rules of Gomoku are incredibly simple to learn, but notoriously difficult to
 
 **1. Clone the repository** \
 \`\`\`bash \
-git clone  https://github.com/ShyamNehra/gomoku_web.git \
-cd gomoku-web
+git clone  https://github.com/ShyamNehra/kyro_web.git \
+cd kyro-web
 \`\`\`
 
 **2. Start the Backend (FastAPI)**

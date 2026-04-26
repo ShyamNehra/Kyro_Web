@@ -2,8 +2,7 @@ import { useEffect, useRef, useCallback, useState } from "react";
 
 // ── Constants ──────────────────────────────────────────────────────────────
 const CELL_SIZE      = 48;
-// const WS_URL         = "wss://gomoku-backend-v3wc.onrender.com/ws/game";
-const WS_URL         = "ws://localhost:8000/ws/game";
+const WS_URL         = "wss://gomoku-backend-v3wc.onrender.com/ws/game";
 const PIECE_RADIUS   = CELL_SIZE * 0.38;
 const DRAG_THRESHOLD = 10;
 
@@ -228,7 +227,7 @@ function pixelToGrid(px, py, camera) {
 }
 
 // ── Component ──────────────────────────────────────────────────────────────
-export default function GomokuBoard() {
+export default function KyroBoard() {
   const canvasRef  = useRef(null);
   const cameraRef  = useRef({ x: 0, y: 0 });
   const dragRef    = useRef(null);
@@ -286,7 +285,7 @@ export default function GomokuBoard() {
       canvas.style.width  = `${W}px`;
       canvas.style.height = `${H}px`;
       if (!cameraRef.current._initialised) {
-        cameraRef.current.x = W / 2;
+        cameraRef.current.x = (W / 2) - (CELL_SIZE / 2);
         cameraRef.current.y = H / 2;
         cameraRef.current._initialised = true;
       }
@@ -486,7 +485,7 @@ export default function GomokuBoard() {
       <style>{`
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         html, body, #root { width: 100%; height: 100%; background: #0d0f14; overflow: hidden; }
-        .gomoku-wrapper { position: fixed; inset: 0; overflow: hidden; }
+        .kyro-wrapper { position: fixed; inset: 0; overflow: hidden; }
         canvas { display: block; }
 
         .hud {
@@ -498,7 +497,7 @@ export default function GomokuBoard() {
           position: fixed;
         }
 
-        .gomoku-label {
+        .kyro-label {
           top: 55px; left: 50%; transform: translateX(-50%);
           font-size: 11px;
           color: rgba(232,184,75,0.55);
@@ -555,7 +554,7 @@ export default function GomokuBoard() {
           white-space: nowrap;
         }
 
-        .gomoku-badge {
+        .kyro-badge {
           bottom: 24px; right: 28px;
           font-size: 10px; color: rgba(255,255,255,0.12);
         }
@@ -615,22 +614,24 @@ win
           display: flex;
           gap: 12px;
           font-family: 'DM Mono', 'Fira Mono', monospace;
-          font-size: 11px;
-          line-height: 1.5;
+          font-size: 13px;
+          line-height: 1.6;
           color: rgba(255,255,255,0.7);
+          text-align: left;
         }
         .rules-bullet {
           color: #e8b84b;
           font-weight: bold;
+          flex-shrink: 0;
         }
         @media (max-width: 600px) {
-          .menu-box { padding: 30px 20px; width: 90%; }
-          .menu-title { font-size: 14px; }
-          .rules-item { font-size: 10px; }
+          .menu-box { padding: 30px 20px; width: 92%; }
+          .menu-title { font-size: 15px; }
+          .rules-item { font-size: 12px; }
         }
       `}</style>
 
-      <div className="gomoku-wrapper">
+      <div className="kyro-wrapper">
         <canvas
           ref={canvasRef}
           style={{ cursor: THEME.cursor, touchAction: "none" }}
@@ -640,7 +641,7 @@ win
           onPointerLeave={onPointerLeave}
         />
 
-        <div className="hud gomoku-label">gomoku · infinite grid</div>
+        <div className="hud kyro-label">kyro · infinite grid</div>
 
         {/* ── THE NEW SCOREBOARD ── */}
         {appState === "PLAYING" && (
@@ -672,7 +673,7 @@ win
           <div className="hud msg-bar">{message}</div>
         )}
 
-        <div className="hud gomoku-badge">drag to pan · click to play</div>
+        <div className="hud kyro-badge">drag to pan · click to play</div>
 
         {appState === "MENU" && !showRules && (
           <div className="overlay-container">
@@ -692,7 +693,7 @@ win
               <div className="rules-list">
                 <div className="rules-item">
                   <span className="rules-bullet">01</span>
-                  <span>Connect exactly five pieces in a row—horizontally, vertically, or diagonally.</span>
+                  <span>Connect exactly five pieces in a row — horizontally, vertically, or diagonally.</span>
                 </div>
                 <div className="rules-item">
                   <span className="rules-bullet">02</span>

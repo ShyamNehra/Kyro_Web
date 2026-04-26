@@ -1,6 +1,16 @@
 # Project Updates
 
-This file tracks the latest updates and improvements made to the Infinite Gomoku project.
+This file tracks the latest updates and improvements made to the Infinite Kyro project.
+
+## [2026-04-26 15:00] - Rebranding, State-Sync & UX Polish
+- **Rebranded**: Officially renamed the project from "Gomoku" to **Kyro**. Updated all UI labels, documentation, and file structures.
+- **Fixed**: Critical state-sync bug where delayed WebSocket connections would wipe the first move or default to the wrong game mode.
+- **Added**: **Golden Win Line** — A glowing golden line now connects the 5 winning pieces immediately upon victory.
+- **Improved**: Added a 1-second delay to the "Game Over" popup, giving players a moment to appreciate the winning move and line.
+- **Improved**: Optimized local development by implementing a dynamic `WS_URL` that automatically switches between `localhost` and production servers.
+- **Added**: Backend now explicitly tracks and sends the `winning_line` coordinates to the frontend.
+- **Cleaned**: Removed unused assets (`hero.png`, Vite/React svgs) and redundant CSS to reduce build size.
+- **Cleaned**: Removed development test blocks and dead logic from backend modules for a cleaner production state.
 
 ## [2026-04-18 14:30] - Sound Effects Integration
 - **Added**: Centralized `SOUNDS` configuration and `playSound` utility.
@@ -26,4 +36,4 @@ This file tracks the latest updates and improvements made to the Infinite Gomoku
 - **Updated**: Standardized all audio assets to `.wav` format for consistent quality and performance.
 
 ---
-*Last updated: 2026-04-19 10:50*
+*Last updated: 2026-04-26 15:05*

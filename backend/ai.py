@@ -1,5 +1,5 @@
 """
-ai.py — Humanized Heuristic AI for Infinite Gomoku
+ai.py — Humanized Heuristic AI for Infinite Kyro
 Evaluates the board and picks a move. Includes intentional "mistakes" 
 to simulate human error and make the game fun.
 """

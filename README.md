@@ -2,51 +2,64 @@
 
 **[Play the Live Demo Here](https://kyro-go.vercel.app/)**
 
-**Kyro** is a sleek, modern reimagining of the classic strategy board game, completely removing the boundaries of the traditional 15x15 grid. Built with a buttery-smooth HTML5 Canvas and a real-time WebSocket backend, players can seamlessly click and drag to pan across an endless playing field to outmaneuver their opponents. 
+**Kyro** is a sleek, modern reimagining of classic strategy board games. It offers a dual-experience: a rigorous, perfect-play **Classic 3x3 Tic-Tac-Toe** and a boundary-defying **Infinite Gomoku**. Built with a buttery-smooth HTML5 Canvas and a real-time WebSocket backend, Kyro combines premium aesthetics with deep tactical gameplay.
 
-Featuring a responsive, glassmorphism UI optimized for both desktop and mobile, you can challenge a custom-built heuristic AI that simulates human-like blunders and thinking delays, or jump into Local PvP for a classic hot-seat battle. In a game with no walls, you only run out of space when you get outsmarted.
+Featuring a responsive, glassmorphism UI optimized for both desktop and mobile, you can challenge custom-built AIs or jump into Local PvP for a classic hot-seat battle. In a game with no walls (Infinite Mode), you only run out of space when you get outsmarted.
 
-## 📜 The Rules of the Game
-The rules of Kyro are incredibly simple to learn, but notoriously difficult to master.
+## 🎮 Game Modes
 
-* **The Objective:** Be the first player to form an unbroken chain of exactly **five** pieces horizontally, vertically, or diagonally.
-* **The Gameplay:** Player X (Light) and Player O (Gold) take turns placing one piece at a time inside any empty square on the board.
-* **The Infinite Board:** There are no edges. If your opponent tries to block you into a corner, simply click and drag to pan the camera and continue building your attack in the endless void.
-* **Match Tracking:** The game ends immediately when a player connects 5 pieces.
+### 1. Classic 3x3 (Tic-Tac-Toe)
+Standard Tic-Tac-Toe on a fixed grid.
+* **Objective:** Get 3 in a row to win.
+* **AI Opponent:** Challenge a perfect-play **Minimax AI** that never misses a beat.
+* **Local PvP:** Play against a friend on the same device.
 
-## Features
-*  **Infinite Canvas:** Click and drag to explore a limitless playing field.
-*  **Humanized AI:** An intelligent Python algorithm that pauses to "think" and occasionally blunders like a real player.
+### 2. Infinite Gomoku (Five-in-a-Row)
+Five-in-a-row on an endless playing field.
+* **Objective:** Form an unbroken chain of exactly **five** pieces horizontally, vertically, or diagonally.
+* **Infinite Board:** There are no edges. Click and drag to pan the camera across the grid.
+* **Humanized AI:** An intelligent Python algorithm that pauses to "think" and simulates human-like strategy.
+* **Match Tracking:** Persistent session score tracking for long-running battles.
+
+## ✨ Features
+*  **Dynamic Navigation:** A full screen-based menu system with dedicated modes for play, rules, and settings.
+*  **Master Volume Control:** Global volume settings that persist across all game modes and sound effects.
+*  **Infinite Canvas:** Click and drag to explore a limitless playing field in Gomoku mode.
+*  **Dual-AI Systems:** From perfect-play Minimax (3x3) to humanized heuristic algorithms (Infinite).
 *  **Local PvP:** Hot-seat multiplayer with persistent session score tracking.
-*  **Mobile-First Design:** Fully responsive with native-feeling touch controls and gesture lock. 
-*  **Real-Time Engine:** Stateless, instant gameplay via WebSockets.
+*  **Mobile-First Design:** Fully responsive with native-feeling touch controls and gesture support.
+*  **Premium Aesthetics:** Minimalist dark theme with glowing gold accents and DM Mono typography.
 
-## Tech Stack
-* **Frontend:** React, Vite, HTML5 Canvas
+## 🛠️ Tech Stack
+* **Frontend:** React, Vite, HTML5 Canvas, Vanilla CSS
 * **Backend:** Python, FastAPI, Uvicorn, WebSockets
 * **Deployment:** Vercel (Frontend), Render (Backend)
 
-## Running Locally
+## 🚀 Running Locally
 
-**1. Clone the repository** \
-\`\`\`bash \
-git clone  https://github.com/ShyamNehra/kyro_web.git \
+**1. Clone the repository**
+```bash
+git clone https://github.com/ShyamNehra/kyro_web.git
 cd kyro-web
-\`\`\`
+```
 
 **2. Start the Backend (FastAPI)**
-\`\`\`bash \
-cd backend \
-python -m venv .venv \
-source .venv/Scripts/activate  # Or .\venv\Scripts\Activate.ps1 on Windows \
-pip install -r requirements.txt \
-uvicorn main:app --reload
-\`\`\`
+```bash
+cd backend
+python -m venv .venv
+# On Windows:
+.\venv\Scripts\Activate.ps1
+# On macOS/Linux:
+source .venv/bin/activate
 
-**3. Start the Frontend (React/Vite)** \
-Open a new terminal window: \
-\`\`\` bash \
-cd frontend \
-npm install \
-npm run dev 
-\`\`\`
+pip install -r requirements.txt
+uvicorn main:app --reload
+```
+
+**3. Start the Frontend (React/Vite)**
+Open a new terminal window:
+```bash
+cd frontend
+npm install
+npm run dev
+```

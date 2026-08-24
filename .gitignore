@@ -1,10 +1,18 @@
 # Python / Backend
+.venv/
+venv/
 backend/.venv/
+backend/venv/
+__pycache__/
 backend/__pycache__/
 *.pyc
 .env
+.env.local
+.env.*.local
+*.env
 
 # Node / Frontend
+node_modules/
 frontend/node_modules/
 frontend/dist/
 frontend/.npm/
@@ -12,3 +20,4 @@ frontend/.npm/
 # OS generated files
 .DS_Store
 Thumbs.db
+

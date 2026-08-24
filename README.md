@@ -6,7 +6,7 @@
 
 Featuring a responsive, glassmorphism UI optimized for both desktop and mobile, you can challenge custom-built AIs or jump into Local PvP for a classic hot-seat battle. In a game with no walls (Infinite Mode), you only run out of space when you get outsmarted.
 
-## 🎮 Game Modes
+## Game Modes
 
 ### 1. Classic 3x3 (Tic-Tac-Toe)
 Standard Tic-Tac-Toe on a fixed grid.
@@ -21,7 +21,7 @@ Five-in-a-row on an endless playing field.
 * **Humanized AI:** An intelligent Python algorithm that pauses to "think" and simulates human-like strategy.
 * **Match Tracking:** Persistent session score tracking for long-running battles.
 
-## ✨ Features
+## Features
 *  **Dynamic Navigation:** A full screen-based menu system with dedicated modes for play, rules, and settings.
 *  **Master Volume Control:** Global volume settings that persist across all game modes and sound effects.
 *  **Infinite Canvas:** Click and drag to explore a limitless playing field in Gomoku mode.
@@ -30,12 +30,12 @@ Five-in-a-row on an endless playing field.
 *  **Mobile-First Design:** Fully responsive with native-feeling touch controls and gesture support.
 *  **Premium Aesthetics:** Minimalist dark theme with glowing gold accents and DM Mono typography.
 
-## 🛠️ Tech Stack
+## Tech Stack
 * **Frontend:** React, Vite, HTML5 Canvas, Vanilla CSS
 * **Backend:** Python, FastAPI, Uvicorn, WebSockets
 * **Deployment:** Vercel (Frontend), Render (Backend)
 
-## 🚀 Running Locally
+## Running Locally
 
 **1. Clone the repository**
 ```bash

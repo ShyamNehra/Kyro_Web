@@ -3,20 +3,32 @@ main.py — FastAPI WebSocket backend for Infinite Kyro
 Manages a game session per WebSocket connection.
 """
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 import asyncio 
 import random
 import json
+import os
 
 from model import GameModel
 from ai import get_best_move
 
+limiter = Limiter(key_func=get_remote_address)
 app = FastAPI(title="Kyro WebSocket Server")
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# Configure CORS via ALLOWED_ORIGINS env variable (comma-separated), falling back to "*"
+raw_origins = os.getenv("ALLOWED_ORIGINS", "*")
+allowed_origins = [origin.strip() for origin in raw_origins.split(",") if origin.strip()]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -35,7 +47,8 @@ def _build_state(model: GameModel, message: str = "") -> dict:
     }
 
 @app.get("/")
-async def health_check():
+@limiter.limit("30/minute")
+async def root(request: Request):
     return {"status": "I am awake!"}
 
 @app.websocket("/ws/game")
@@ -51,23 +64,37 @@ async def game_endpoint(websocket: WebSocket):
     try:
         while True:
             raw = await websocket.receive_text()
+            # Security: Limit incoming payload size (max 2048 bytes) to prevent memory exhaustion
+            if len(raw) > 2048:
+                await websocket.send_text(json.dumps({"error": "Payload size exceeds limit."}))
+                continue
+
             try:
                 data = json.loads(raw)
-            except json.JSONDecodeError:
+            except Exception:
+                await websocket.send_text(json.dumps({"error": "Invalid JSON format."}))
+                continue
+
+            if not isinstance(data, dict):
+                await websocket.send_text(json.dumps({"error": "Invalid request object."}))
                 continue
 
             action = data.get("action")
 
             # ── Sync Mode ──────────────────────────────────────────────────
             if action == "sync_mode":
-                current_mode = data.get("mode", current_mode)
+                mode_input = data.get("mode")
+                if mode_input in ("ai", "pvp"):
+                    current_mode = mode_input
                 msg = f"Mode synced to {current_mode}."
                 await websocket.send_text(json.dumps(_build_state(model, msg)))
                 continue
 
             # ── Reset (Restart) ────────────────────────────────────────────
             if action == "reset":
-                current_mode = data.get("mode", current_mode)
+                mode_input = data.get("mode")
+                if mode_input in ("ai", "pvp"):
+                    current_mode = mode_input
                 model.reset()
                 msg = "Board reset. Your turn (X)." if current_mode == "ai" else "Board reset. X goes first."
                 await websocket.send_text(json.dumps(_build_state(model, msg)))
@@ -80,6 +107,9 @@ async def game_endpoint(websocket: WebSocket):
 
                 try:
                     x, y = int(data["x"]), int(data["y"])
+                    # Coordinate bounds check to prevent extreme values
+                    if abs(x) > 100000 or abs(y) > 100000:
+                        continue
                 except (KeyError, ValueError, TypeError):
                     continue
 
@@ -119,3 +149,12 @@ async def game_endpoint(websocket: WebSocket):
 
     except WebSocketDisconnect:
         pass
+    except Exception:
+        # Catch unexpected errors to prevent unhandled stack trace leakage
+        pass
+
+
+@app.get("/health")
+@limiter.exempt
+def health_check():
+    return {"status": "ok"}

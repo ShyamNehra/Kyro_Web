@@ -46,7 +46,7 @@ def _build_state(model: GameModel, message: str = "") -> dict:
         "message": message,
     }
 
-@app.get("/")
+@app.api_route("/", methods=["GET", "HEAD"])
 @limiter.limit("30/minute")
 async def root(request: Request):
     return {"status": "I am awake!"}
@@ -154,7 +154,7 @@ async def game_endpoint(websocket: WebSocket):
         pass
 
 
-@app.get("/health")
+@app.api_route("/health", methods=["GET", "HEAD"])
 @limiter.exempt
 def health_check():
     return {"status": "ok"}
